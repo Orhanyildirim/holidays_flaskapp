@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Holidays</title>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <form>
+        <div class="row mt-3">
+            <div class="col">
+                <div class="form-group">
+                    <label for="select_country">Country</label>
+                    <select class="form-control" id="select_country">
+                        <option value="">Countries</option>
+                        {% for country in list_of_countries %}
+                        <option value="{{country}}">{{country}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label for="select_state">Prov & States</label>
+                    <select class="form-control" id="select_state">
+                        <option value="">Provinces & States</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label for="inputYear">Year</label>
+                    <input type="text" class="form-control" value=2021 id="inputYear">
+                  </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <table class="table" id="hol_list">
+            </table>
+        </div>
+    </form>
+    Made with
+                <span class="align-top" style= "font-size: 150% ;color:red; line-height:1">
+                  &hearts;
+                </span>by
+                <a
+                  href="https://github.com/Orhanyildirim"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Orhan
+                </a>
+</div>
+<script>
+    var country_select = document.getElementById('select_country')
+    var state_select = document.getElementById('select_state')
+    var input_year = document.getElementById('inputYear')
+    function fill_states(data) {
+        let option_html_prov = '<option value="">Provinces & States</option>'
+        for (let i of JSON.parse(data.prov)) {
+            option_html_prov += '<option value="' + i + '">' + i + '</option>';
+        };
+        select_state.innerHTML = option_html_prov
+    }
+    function fill_holidays(data) {
+        let option_html_hols = '<thead>' +
+            '<tr><th>Date</th><th>Name</th><tr></thead>' +
+            '<tbody>'
+        for (let i of JSON.parse(data.holidays)) {
+            option_html_hols += '<tr><td>' + i.date + '</td><td>' + i.name + '</td>';
+        }
+        option_html_hols += '</tbody>'
+        hol_list.innerHTML = option_html_hols
+    }
+    country_select.onchange = function () {
+        var country = country_select.value
+        var year = input_year.value
+        var state = state_select.value
+        fetch(/states/ + country+ '/' + year+ '/' + state).then(function (response) {
+            response.json().then(function (data) {
+                fill_states(data)
+                fill_holidays(data)
+            })
+        })
+    }
+    state_select.onchange = function () {
+        var country = country_select.value
+        var state = state_select.value
+        var year = input_year.value
+        fetch(/states/ + country + '/' + year + '/' + state).then(function (response) {
+            response.json().then(function (data) {
+                fill_holidays(data)
+            })
+        })
+    }
+    input_year.onchange = function () {
+        var country = country_select.value
+        var state = state_select.value
+        var year = input_year.value
+        if (year.length ==4){
+        fetch(/states/ + country + '/' + year+ '/' + state).then(function (response) {
+            response.json().then(function (data) {
+                fill_holidays(data)
+            })
+        })
+    }
+    }
+</script>
+{% endblock %}
